@@ -1,82 +1,281 @@
-<!DOCTYPE html>
 
-<html>
+<!DOCTYPE html>
+<html lang="id">
 <head>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Dashboard Penjualan Buku</title>
-
-<link rel="stylesheet" href="style.css">
-
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<script defer src="app.js"></script>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+body{font-family:Inter,Arial,sans-serif;background:#f4f7fb;margin:0}
+.header{background:#111827;color:white;padding:20px}
+.container{padding:20px;max-width:1400px;margin:auto}
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:15px}
+.card{background:white;padding:18px;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.controls{display:flex;gap:10px;flex-wrap:wrap;margin:20px 0}
+table{width:100%;border-collapse:collapse;background:white}
+th,td{padding:10px;border:1px solid #e5e7eb}
+th{background:#eef2ff}
+.rank{padding:8px;border-bottom:1px solid #eee}
+canvas{background:white;padding:15px;border-radius:14px}
+button,select,input{padding:10px;border-radius:8px;border:1px solid #ccc}
+</style>
 </head>
-
 <body>
 
 <div class="header">
-  <h1>📚 Dashboard Penjualan Buku</h1>
+<h1>📚 Dashboard Penjualan Toko Buku</h1>
 </div>
 
 <div class="container">
 
-<div class="cards">
-
-<div class="card">
-  <h3>Total Revenue</h3>
-  <p id="revenue">0</p>
-</div>
-
-<div class="card">
-  <h3>Total Judul</h3>
-  <p id="titleCount">0</p>
-</div>
-
-<div class="card">
-  <h3>Top Seller</h3>
-  <p id="topSeller">-</p>
-</div>
-
-<div class="card">
-  <h3>Profit</h3>
-  <p id="profit">0</p>
-</div>
-
-</div>
-
-<div class="toolbar">
-
+<div class="controls">
 <select id="monthFilter">
 <option value="">Semua Bulan</option>
-<option>Jan</option>
-<option>Feb</option>
-<option>Mar</option>
-<option>Apr</option>
+<option>January</option>
+<option>February</option>
+<option>March</option>
+<option>April</option>
 <option>May</option>
-<option>Jun</option>
-<option>Jul</option>
-<option>Aug</option>
-<option>Sep</option>
-<option>Oct</option>
-<option>Nov</option>
-<option>Dec</option>
+<option>June</option>
+<option>July</option>
+<option>August</option>
+<option>September</option>
+<option>October</option>
+<option>November</option>
+<option>December</option>
 </select>
 
-<button onclick="exportPDF()">
-Export PDF
-</button>
-
+<input id="search" placeholder="Cari judul buku">
+<button onclick="exportPDF()">Export PDF</button>
 </div>
 
+<div class="cards">
+<div class="card"><h3>Total Judul</h3><h2 id="totalBooks">0</h2></div>
+<div class="card"><h3>Total Qty</h3><h2 id="totalQty">0</h2></div>
+<div class="card"><h3>Total Sales</h3><h2 id="totalSales">0</h2></div>
+<div class="card"><h3>Top Seller</h3><h2 id="topBook">-</h2></div>
+</div>
+
+<br>
+
+<div style="display:grid;grid-template-columns:2fr 1fr;gap:20px">
+<div>
 <canvas id="salesChart"></canvas>
+</div>
 
+<div class="card">
+<h3>🏆 Ranking Buku Terlaris</h3>
 <div id="ranking"></div>
+</div>
+</div>
 
-<table id="salesTable">
+<br>
+
+<div class="card">
+<h3>Daftar Penjualan Buku</h3>
+<table>
+<thead>
+<tr>
+<th>Kode</th>
+<th>Judul</th>
+<th>Qty</th>
+<th>Penjualan</th>
+</tr>
+</thead>
+<tbody id="tbody"></tbody>
 </table>
+</div>
 
 </div>
+
+<script>
+
+// DATA DARI API / GOOGLE SHEET
+const API_URL =
+"https://script.google.com/macros/s/AKfycbxEZLydgr_7WNStW2mmiFTNVxFqMLQ8ViZOV8GrkL03c_qYljGqam_oukKr1V-yMHW1hw/exec";
+
+let dashboardData = {
+    books: [],
+    monthly: []
+};
+
+async function loadData() {
+
+    try {
+
+        const res = await fetch(API_URL);
+        const raw = await res.json();
+
+        console.log(raw);
+
+        //----------------------------------
+        // GENERAL REPORT
+        //----------------------------------
+
+        const books = raw.general
+            .slice(4,57)
+            .map(row => ({
+                code: row[1],
+                title: row[2],
+                qty: Number(row[4]) || 0,
+                sales: Number(row[10]) || 0,
+                profit: Number(row[11]) || 0
+            }))
+            .filter(x => x.title);
+
+        //----------------------------------
+        // MONTHLY REPORT
+        //----------------------------------
+
+        const totalRow = raw.monthly.find(
+            row => String(row[0]).includes("TOTAL")
+        );
+
+        const months = [
+            "January",
+            "February",
+            "March",
+            "April",
+            "May",
+            "June",
+            "July",
+            "August",
+            "September",
+            "October",
+            "November",
+            "December"
+        ];
+
+        const monthly = [];
+
+        for(let i=0;i<12;i++){
+
+            const amountIndex = 4 + (i*2);
+
+            monthly.push({
+                month: months[i],
+                sales: Number(totalRow?.[amountIndex] || 0)
+            });
+
+        }
+
+        dashboardData = {
+            books,
+            monthly
+        };
+
+        render();
+
+    }
+
+    catch(err){
+
+        console.error(err);
+
+        alert("Gagal mengambil data");
+
+    }
+
+}
+
+function render(){
+
+const books = dashboardData.books;
+const monthly = dashboardData.monthly;
+
+document.getElementById('totalBooks').innerText =
+books.length;
+
+let qty =
+books.reduce((a,b)=>a+b.qty,0);
+
+let sales =
+books.reduce((a,b)=>a+b.sales,0);
+
+document.getElementById('totalQty').innerText =
+qty.toLocaleString('id-ID');
+
+document.getElementById('totalSales').innerText =
+'Rp '+sales.toLocaleString('id-ID');
+
+let top =
+[...books]
+.sort((a,b)=>b.qty-a.qty)[0];
+
+document.getElementById('topBook').innerText =
+top?.title || '-';
+
+let rank =
+document.getElementById('ranking');
+
+rank.innerHTML='';
+
+[...books]
+.sort((a,b)=>b.qty-a.qty)
+.slice(0,10)
+.forEach((x,i)=>{
+
+rank.innerHTML+=`
+<div class="rank">
+${i+1}. ${x.title}
+</div>`;
+
+});
+
+let tbody =
+document.getElementById('tbody');
+
+tbody.innerHTML='';
+
+books
+.sort((a,b)=>b.qty-a.qty)
+.forEach(x=>{
+
+tbody.innerHTML+=`
+<tr>
+<td>${x.code}</td>
+<td>${x.title}</td>
+<td>${x.qty.toLocaleString('id-ID')}</td>
+<td>Rp ${x.sales.toLocaleString('id-ID')}</td>
+</tr>`;
+
+});
+
+if(window.salesChart){
+window.salesChart.destroy();
+}
+
+window.salesChart =
+new Chart(
+document.getElementById('salesChart'),
+{
+type:'bar',
+data:{
+labels:monthly.map(x=>x.month),
+datasets:[{
+label:'Penjualan Bulanan',
+data:monthly.map(x=>x.sales)
+}]
+},
+options:{
+responsive:true
+}
+}
+);
+
+}
+
+function exportPDF(){
+const { jsPDF } = window.jspdf;
+const doc=new jsPDF();
+doc.text("Laporan Penjualan Buku",20,20);
+doc.save("laporan-penjualan.pdf");
+}
+
+loadData();
+</script>
 
 </body>
 </html>
