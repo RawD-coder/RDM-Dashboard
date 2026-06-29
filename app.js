@@ -16,6 +16,37 @@ async function loadData() {
 function processData(data){
 
     const monthly = data.monthly;
+	const general = data.general;
+
+const totalRevenue = general[57][10];
+const totalProfit = general[57][11];
+const totalTitle = general.slice(4,57).length;
+
+let topBook = "";
+let topQty = 0;
+
+for(let i=4;i<57;i++){
+
+  const title = general[i][2];
+  const sold = Number(general[i][4]) || 0;
+
+  if(sold > topQty){
+      topQty = sold;
+      topBook = title;
+  }
+}
+
+document.getElementById("revenue").innerHTML =
+"Rp " + Number(totalRevenue).toLocaleString("id-ID");
+
+document.getElementById("profit").innerHTML =
+"Rp " + Number(totalProfit).toLocaleString("id-ID");
+
+document.getElementById("titleCount").innerHTML =
+totalTitle;
+
+document.getElementById("topSeller").innerHTML =
+topBook;
 
     const labels = [];
     const revenue = [];
