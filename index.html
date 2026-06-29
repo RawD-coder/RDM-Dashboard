@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="utf-8">
+<title>Dashboard Penjualan Buku</title>
+
+<link rel="stylesheet" href="style.css">
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script defer src="app.js"></script>
+
+</head>
+
+<body>
+
+<div class="header">
+  <h1>📚 Dashboard Penjualan Buku</h1>
+</div>
+
+<div class="container">
+
+<div class="cards">
+
+<div class="card">
+<h3>Total Revenue</h3>
+<div id="totalRevenue"></div>
+</div>
+
+<div class="card">
+<h3>Total Judul</h3>
+<div id="totalBooks"></div>
+</div>
+
+<div class="card">
+<h3>Top Seller</h3>
+<div id="topBook"></div>
+</div>
+
+<div class="card">
+<h3>Profit</h3>
+<div id="profit"></div>
+</div>
+
+</div>
+
+<div class="toolbar">
+
+<select id="monthFilter">
+<option value="">Semua Bulan</option>
+<option>Jan</option>
+<option>Feb</option>
+<option>Mar</option>
+<option>Apr</option>
+<option>May</option>
+<option>Jun</option>
+<option>Jul</option>
+<option>Aug</option>
+<option>Sep</option>
+<option>Oct</option>
+<option>Nov</option>
+<option>Dec</option>
+</select>
+
+<button onclick="exportPDF()">
+Export PDF
+</button>
+
+</div>
+
+<canvas id="salesChart"></canvas>
+
+<div id="ranking"></div>
+
+<table id="salesTable">
+</table>
+
+</div>
+
+</body>
+</html>
