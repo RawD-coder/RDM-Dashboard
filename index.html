@@ -1,283 +1,381 @@
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Dashboard Penjualan Buku</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<style>
-body{font-family:Inter,Arial,sans-serif;background:#f4f7fb;margin:0}
-.header{background:#111827;color:white;padding:20px}
-.container{padding:20px;max-width:1400px;margin:auto}
-.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:15px}
-.card{background:white;padding:18px;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.08)}
-.controls{display:flex;gap:10px;flex-wrap:wrap;margin:20px 0}
-table{width:100%;border-collapse:collapse;background:white}
-th,td{padding:10px;border:1px solid #e5e7eb}
-th{background:#eef2ff}
-.rank{padding:8px;border-bottom:1px solid #eee}
-canvas{background:white;padding:15px;border-radius:14px}
-button,select,input{padding:10px;border-radius:8px;border:1px solid #ccc}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Laporan Penjualan Toko Buku</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+    }
+    body {
+      background: #f4f7fc;
+      margin: 20px;
+    }
+    .container {
+      max-width: 1400px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 16px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    }
+    h1 {
+      color: #1e2b3c;
+      border-bottom: 3px solid #2a7de1;
+      padding-bottom: 10px;
+    }
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      margin: 20px 0;
+      align-items: center;
+    }
+    .filters label {
+      font-weight: 600;
+      color: #1e2b3c;
+    }
+    .filters select, .filters input {
+      padding: 8px 14px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+    }
+    .summary {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      background: #eef3fa;
+      padding: 16px 20px;
+      border-radius: 12px;
+      margin-bottom: 24px;
+    }
+    .summary-item {
+      flex: 1 1 150px;
+    }
+    .summary-item span {
+      display: block;
+      font-size: 13px;
+      color: #3a4a5e;
+    }
+    .summary-item strong {
+      font-size: 20px;
+      color: #0b1a2e;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+      margin-top: 12px;
+      overflow-x: auto;
+      display: block;
+      white-space: nowrap;
+    }
+    th, td {
+      border: 1px solid #d0dae8;
+      padding: 8px 12px;
+      text-align: right;
+    }
+    th {
+      background: #1e2b3c;
+      color: white;
+      font-weight: 600;
+      text-align: center;
+      position: sticky;
+      top: 0;
+      z-index: 2;
+    }
+    td:first-child, th:first-child {
+      text-align: center;
+      font-weight: 500;
+    }
+    td:nth-child(2), td:nth-child(3) {
+      text-align: left;
+    }
+    tr:nth-child(even) {
+      background: #f8faff;
+    }
+    tr:hover {
+      background: #e3ecf9;
+    }
+    .total-row {
+      background: #d9e4f0 !important;
+      font-weight: 700;
+    }
+    .total-row td {
+      border-top: 3px solid #1e2b3c;
+    }
+    .badge {
+      background: #2a7de1;
+      color: white;
+      padding: 2px 12px;
+      border-radius: 30px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .loading {
+      text-align: center;
+      padding: 40px;
+      font-size: 18px;
+      color: #555;
+    }
+    .error {
+      color: #b00020;
+      background: #ffe6e6;
+      padding: 16px;
+      border-radius: 10px;
+    }
+    @media (max-width: 600px) {
+      .summary-item strong { font-size: 16px; }
+      table { font-size: 12px; }
+      td, th { padding: 5px 6px; }
+    }
+  </style>
 </head>
 <body>
 
-<div class="header">
-<h1>📚 Dashboard Penjualan Toko Buku</h1>
-</div>
+<div class="container" id="app">
+  <h1>📚 Laporan Penjualan Toko Buku</h1>
 
-<div class="container">
+  <!-- Filter -->
+  <div class="filters">
+    <div>
+      <label for="monthFilter">📅 Bulan: </label>
+      <select id="monthFilter">
+        <option value="all">Semua Bulan</option>
+        <option value="JANUARY">Januari</option>
+        <option value="FEBRUARY">Februari</option>
+        <option value="MARCH">Maret</option>
+        <option value="APRIL">April</option>
+        <option value="MAY">Mei</option>
+        <option value="JUNE">Juni</option>
+        <option value="JULY">Juli</option>
+        <option value="AUGUST">Agustus</option>
+        <option value="SEPTEMBER">September</option>
+        <option value="OCTOBER">Oktober</option>
+        <option value="NOVEMBER">November</option>
+        <option value="DECEMBER">Desember</option>
+      </select>
+    </div>
+    <div>
+      <label for="searchInput">🔍 Cari Judul / Kode: </label>
+      <input type="text" id="searchInput" placeholder="contoh: MDP0037 atau Layangan" />
+    </div>
+    <div>
+      <button id="refreshBtn" style="background:#1e2b3c; color:white; border:none; padding:8px 20px; border-radius:8px; cursor:pointer;">⟳ Refresh</button>
+    </div>
+  </div>
 
-<div class="controls">
-<select id="monthFilter">
-<option value="">Semua Bulan</option>
-<option>January</option>
-<option>February</option>
-<option>March</option>
-<option>April</option>
-<option>May</option>
-<option>June</option>
-<option>July</option>
-<option>August</option>
-<option>September</option>
-<option>October</option>
-<option>November</option>
-<option>December</option>
-</select>
+  <!-- Summary -->
+  <div class="summary" id="summaryBox">
+    <div class="summary-item"><span>📦 Total Qty Terjual</span><strong id="totalQty">0</strong></div>
+    <div class="summary-item"><span>💰 Total Pendapatan</span><strong id="totalAmount">Rp 0</strong></div>
+    <div class="summary-item"><span>📚 Jumlah Judul</span><strong id="totalTitles">0</strong></div>
+  </div>
 
-<input id="search" placeholder="Cari judul buku">
-<button onclick="exportPDF()">Export PDF</button>
-</div>
-
-<div class="cards">
-<div class="card"><h3>Total Judul</h3><h2 id="totalBooks">0</h2></div>
-<div class="card"><h3>Total Qty</h3><h2 id="totalQty">0</h2></div>
-<div class="card"><h3>Total Sales</h3><h2 id="totalSales">0</h2></div>
-<div class="card"><h3>Top Seller</h3><h2 id="topBook">-</h2></div>
-</div>
-
-<br>
-
-<div style="display:grid;grid-template-columns:2fr 1fr;gap:20px">
-<div>
-<canvas id="salesChart"></canvas>
-</div>
-
-<div class="card">
-<h3>🏆 Ranking Buku Terlaris</h3>
-<div id="ranking"></div>
-</div>
-</div>
-
-<br>
-
-<div class="card">
-<h3>Daftar Penjualan Buku</h3>
-<table>
-<thead>
-<tr>
-<th>Kode</th>
-<th>Judul</th>
-<th>Qty</th>
-<th>Penjualan</th>
-</tr>
-</thead>
-<tbody id="tbody"></tbody>
-</table>
-</div>
-
+  <!-- Table -->
+  <div style="overflow-x:auto;">
+    <table>
+      <thead id="tableHead">
+        <tr>
+          <th>No</th>
+          <th>Kode</th>
+          <th>Judul</th>
+          <th>Bulan</th>
+          <th>Qty</th>
+          <th>Jumlah (Rp)</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody">
+        <tr><td colspan="6" class="loading">⏳ Memuat data...</td></tr>
+      </tbody>
+    </table>
+  </div>
 </div>
 
 <script>
+  // ============================================================
+  // KONFIGURASI: GANTI URL INI DENGAN LINK PUBLISHED GOOGLE SHEETS CSV
+  // ============================================================
+  const DATA_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT0x.../pub?output=csv';
+  // Contoh format: https://docs.google.com/spreadsheets/d/1ABC123.../export?format=csv&gid=0
 
-// DATA DARI API / GOOGLE SHEET
-const API_URL =
-"https://script.google.com/macros/s/AKfycbxEZLydgr_7WNStW2mmiFTNVxFqMLQ8ViZOV8GrkL03c_qYljGqam_oukKr1V-yMHW1hw/exec";
+  // Jika ingin menggunakan file JSON statis, ganti dengan:
+  // const DATA_URL = '/data/sales.json';
 
-let dashboardData = {
-    books: [],
-    monthly: []
-};
+  let allRows = [];
 
-async function loadData() {
-
+  // ============================================================
+  // AMBIL DATA DARI GOOGLE SHEETS (CSV)
+  // ============================================================
+  async function fetchData() {
     try {
+      const response = await fetch(DATA_URL);
+      if (!response.ok) throw new Error('Gagal mengambil data');
+      const csvText = await response.text();
+      const parsed = parseCSV(csvText);
+      allRows = parsed;
+      renderTable(allRows);
+      updateSummary(allRows);
+    } catch (err) {
+      document.getElementById('tableBody').innerHTML = `<tr><td colspan="6" class="error">❌ Error: ${err.message}. Pastikan URL Google Sheets benar dan di-publish.</td></tr>`;
+      console.error(err);
+    }
+  }
 
-        const res = await fetch(API_URL);
-        const raw = await res.json();
+  // ============================================================
+  // PARSER CSV SEDERHANA (support koma, kutip)
+  // ============================================================
+  function parseCSV(text) {
+    const lines = text.split(/\r?\n/).filter(line => line.trim() !== '');
+    if (lines.length < 3) return [];
 
-        console.log(raw);
+    // Cari baris header (No, CODE, TITLE, JANUARY, ...)
+    let headerIndex = -1;
+    for (let i = 0; i < lines.length; i++) {
+      if (lines[i].toLowerCase().includes('no') && lines[i].toLowerCase().includes('code') && lines[i].toLowerCase().includes('title')) {
+        headerIndex = i;
+        break;
+      }
+    }
+    if (headerIndex === -1) return [];
 
-        //----------------------------------
-        // GENERAL REPORT
-        //----------------------------------
+    const headers = lines[headerIndex].split(',').map(h => h.trim());
+    // Cari indeks kolom: No, CODE, TITLE, dan kolom Qty/Amount per bulan
+    const noIdx = headers.indexOf('No');
+    const codeIdx = headers.indexOf('CODE');
+    const titleIdx = headers.indexOf('TITLE');
 
-        const books = raw.general
-            .slice(4,57)
-            .map(row => ({
-                code: row[1],
-                title: row[2],
-                qty: Number(row[4]) || 0,
-                sales: Number(row[10]) || 0,
-                profit: Number(row[11]) || 0
-            }))
-            .filter(x => x.title);
+    // Kumpulkan pasangan (Qty, Amount) untuk setiap bulan
+    // Format: JANUARY, FEBRUARY, ... diikuti Qty dan Amount
+    const monthCols = {};
+    let currentMonth = '';
+    for (let i = 0; i < headers.length; i++) {
+      const h = headers[i].toUpperCase();
+      if (['JANUARY','FEBRUARY','MARCH','APRIL','MAY','JUNE','JULY','AUGUST','SEPTEMBER','OCTOBER','NOVEMBER','DECEMBER'].includes(h)) {
+        currentMonth = h;
+        monthCols[currentMonth] = { qtyIdx: i, amountIdx: i+1 };
+      }
+    }
 
-        //----------------------------------
-        // MONTHLY REPORT
-        //----------------------------------
+    // Ambil data baris (mulai setelah header)
+    const rows = [];
+    for (let i = headerIndex + 1; i < lines.length; i++) {
+      const cols = lines[i].split(',').map(c => c.trim());
+      if (cols.length < 3) continue;
+      const no = parseInt(cols[noIdx]) || 0;
+      const code = cols[codeIdx] || '';
+      const title = cols[titleIdx] || '';
+      if (!code && !title) continue;
 
-        const totalRow = raw.monthly.find(
-            row => String(row[0]).includes("TOTAL")
-        );
-
-        const months = [
-            "January",
-            "February",
-            "March",
-            "April",
-            "May",
-            "June",
-            "July",
-            "August",
-            "September",
-            "October",
-            "November",
-            "December"
-        ];
-
-        const monthly = [];
-
-        for(let i=0;i<12;i++){
-
-            const amountIndex = 4 + (i*2);
-
-            monthly.push({
-                month: months[i],
-                sales: Number(totalRow?.[amountIndex] || 0)
-            });
-
+      // Ambil data per bulan
+      for (const [month, idxs] of Object.entries(monthCols)) {
+        const qty = parseFloat(cols[idxs.qtyIdx]) || 0;
+        const amount = parseFloat(cols[idxs.amountIdx]) || 0;
+        if (qty !== 0 || amount !== 0) {
+          rows.push({
+            no,
+            code,
+            title,
+            month,
+            qty,
+            amount
+          });
         }
+      }
+    }
+    return rows;
+  }
 
-        dashboardData = {
-            books,
-            monthly
-        };
-
-        render();
-
+  // ============================================================
+  // RENDER TABLE
+  // ============================================================
+  function renderTable(data) {
+    const tbody = document.getElementById('tableBody');
+    if (!data || data.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:30px;">📭 Tidak ada data untuk filter ini</td></tr>`;
+      return;
     }
 
-    catch(err){
+    // Urutkan berdasarkan No, lalu bulan
+    const sorted = [...data].sort((a,b) => a.no - b.no || a.month.localeCompare(b.month));
 
-        console.error(err);
-
-        alert("Gagal mengambil data");
-
+    let html = '';
+    let runningNo = 1;
+    for (const row of sorted) {
+      const monthDisplay = row.month.charAt(0) + row.month.slice(1).toLowerCase();
+      html += `<tr>
+        <td>${runningNo++}</td>
+        <td>${row.code}</td>
+        <td>${row.title}</td>
+        <td>${monthDisplay}</td>
+        <td>${row.qty}</td>
+        <td>${formatRupiah(row.amount)}</td>
+      </tr>`;
     }
+    tbody.innerHTML = html;
+  }
 
-}
+  // ============================================================
+  // UPDATE SUMMARY
+  // ============================================================
+  function updateSummary(data) {
+    let totalQty = 0, totalAmount = 0;
+    const uniqueTitles = new Set();
+    for (const row of data) {
+      totalQty += row.qty;
+      totalAmount += row.amount;
+      uniqueTitles.add(row.code);
+    }
+    document.getElementById('totalQty').textContent = totalQty;
+    document.getElementById('totalAmount').textContent = formatRupiah(totalAmount);
+    document.getElementById('totalTitles').textContent = uniqueTitles.size;
+  }
 
-function render(){
+  // ============================================================
+  // FILTER
+  // ============================================================
+  function applyFilters() {
+    const month = document.getElementById('monthFilter').value;
+    const keyword = document.getElementById('searchInput').value.toLowerCase().trim();
 
-const books = dashboardData.books;
-const monthly = dashboardData.monthly;
+    let filtered = allRows;
+    if (month !== 'all') {
+      filtered = filtered.filter(row => row.month === month);
+    }
+    if (keyword) {
+      filtered = filtered.filter(row => 
+        row.code.toLowerCase().includes(keyword) || 
+        row.title.toLowerCase().includes(keyword)
+      );
+    }
+    renderTable(filtered);
+    updateSummary(filtered);
+  }
 
-document.getElementById('totalBooks').innerText =
-books.length;
+  // ============================================================
+  // FORMAT RUPIAH
+  // ============================================================
+  function formatRupiah(amount) {
+    return 'Rp ' + Math.round(amount).toLocaleString('id-ID');
+  }
 
-let qty =
-books.reduce((a,b)=>a+b.qty,0);
+  // ============================================================
+  // EVENT LISTENER
+  // ============================================================
+  document.getElementById('monthFilter').addEventListener('change', applyFilters);
+  document.getElementById('searchInput').addEventListener('input', applyFilters);
+  document.getElementById('refreshBtn').addEventListener('click', () => {
+    document.getElementById('tableBody').innerHTML = `<tr><td colspan="6" class="loading">⏳ Memuat ulang...</td></tr>`;
+    fetchData();
+  });
 
-let sales =
-books.reduce((a,b)=>a+b.sales,0);
-
-document.getElementById('totalQty').innerText =
-qty.toLocaleString('id-ID');
-
-document.getElementById('totalSales').innerText =
-'Rp '+sales.toLocaleString('id-ID');
-
-let top =
-[...books]
-.sort((a,b)=>b.qty-a.qty)[0];
-
-document.getElementById('topBook').innerText =
-top?.title || '-';
-
-let rank =
-document.getElementById('ranking');
-
-rank.innerHTML='';
-
-[...books]
-.sort((a,b)=>b.qty-a.qty)
-.slice(0,10)
-.forEach((x,i)=>{
-
-rank.innerHTML+=`
-<div class="rank">
-${i+1}. ${x.title}
-</div>`;
-
-});
-
-let tbody =
-document.getElementById('tbody');
-
-tbody.innerHTML='';
-
-books
-.sort((a,b)=>b.qty-a.qty)
-.forEach(x=>{
-
-tbody.innerHTML+=`
-<tr>
-<td>${x.code}</td>
-<td>${x.title}</td>
-<td>${x.qty.toLocaleString('id-ID')}</td>
-<td>Rp ${x.sales.toLocaleString('id-ID')}</td>
-</tr>`;
-
-});
-
-if (
-    window.salesChart &&
-    typeof window.salesChart.destroy === "function"
-){
-    window.salesChart.destroy();
-}
-
-window.salesChart =
-new Chart(
-document.getElementById('salesChart'),
-{
-type:'bar',
-data:{
-labels:monthly.map(x=>x.month),
-datasets:[{
-label:'Penjualan Bulanan',
-data:monthly.map(x=>x.sales)
-}]
-},
-options:{
-responsive:true
-}
-}
-);
-
-}
-
-function exportPDF(){
-const { jsPDF } = window.jspdf;
-const doc=new jsPDF();
-doc.text("Laporan Penjualan Buku",20,20);
-doc.save("laporan-penjualan.pdf");
-}
-
-loadData();
+  // ============================================================
+  // START
+  // ============================================================
+  fetchData();
 </script>
 
 </body>
