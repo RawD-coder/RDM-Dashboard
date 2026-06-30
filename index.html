@@ -1,382 +1,907 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Laporan Penjualan Toko Buku</title>
-  <style>
-    * {
-      box-sizing: border-box;
-      font-family: 'Segoe UI', Tahoma, sans-serif;
-    }
-    body {
-      background: #f4f7fc;
-      margin: 20px;
-    }
-    .container {
-      max-width: 1400px;
-      margin: auto;
-      background: white;
-      padding: 20px;
-      border-radius: 16px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
-    }
-    h1 {
-      color: #1e2b3c;
-      border-bottom: 3px solid #2a7de1;
-      padding-bottom: 10px;
-    }
-    .filters {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 20px;
-      margin: 20px 0;
-      align-items: center;
-    }
-    .filters label {
-      font-weight: 600;
-      color: #1e2b3c;
-    }
-    .filters select, .filters input {
-      padding: 8px 14px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      font-size: 14px;
-    }
-    .summary {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 20px;
-      background: #eef3fa;
-      padding: 16px 20px;
-      border-radius: 12px;
-      margin-bottom: 24px;
-    }
-    .summary-item {
-      flex: 1 1 150px;
-    }
-    .summary-item span {
-      display: block;
-      font-size: 13px;
-      color: #3a4a5e;
-    }
-    .summary-item strong {
-      font-size: 20px;
-      color: #0b1a2e;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 14px;
-      margin-top: 12px;
-      overflow-x: auto;
-      display: block;
-      white-space: nowrap;
-    }
-    th, td {
-      border: 1px solid #d0dae8;
-      padding: 8px 12px;
-      text-align: right;
-    }
-    th {
-      background: #1e2b3c;
-      color: white;
-      font-weight: 600;
-      text-align: center;
-      position: sticky;
-      top: 0;
-      z-index: 2;
-    }
-    td:first-child, th:first-child {
-      text-align: center;
-      font-weight: 500;
-    }
-    td:nth-child(2), td:nth-child(3) {
-      text-align: left;
-    }
-    tr:nth-child(even) {
-      background: #f8faff;
-    }
-    tr:hover {
-      background: #e3ecf9;
-    }
-    .total-row {
-      background: #d9e4f0 !important;
-      font-weight: 700;
-    }
-    .total-row td {
-      border-top: 3px solid #1e2b3c;
-    }
-    .badge {
-      background: #2a7de1;
-      color: white;
-      padding: 2px 12px;
-      border-radius: 30px;
-      font-size: 12px;
-      font-weight: 600;
-    }
-    .loading {
-      text-align: center;
-      padding: 40px;
-      font-size: 18px;
-      color: #555;
-    }
-    .error {
-      color: #b00020;
-      background: #ffe6e6;
-      padding: 16px;
-      border-radius: 10px;
-    }
-    @media (max-width: 600px) {
-      .summary-item strong { font-size: 16px; }
-      table { font-size: 12px; }
-      td, th { padding: 5px 6px; }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RDM Publishers · Laporan Real-time</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+        }
+        body {
+            background: #eef2f7;
+            padding: 24px 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            max-width: 1400px;
+            width: 100%;
+            background: white;
+            border-radius: 32px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.05);
+            padding: 28px 24px 40px;
+        }
+        h1 {
+            font-size: 26px;
+            font-weight: 700;
+            color: #0b1a33;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 4px;
+        }
+        .subhead {
+            color: #3e5e7a;
+            font-size: 15px;
+            margin-bottom: 28px;
+            border-left: 4px solid #2a7de1;
+            padding-left: 16px;
+            background: #f0f6ff;
+            border-radius: 0 12px 12px 0;
+            line-height: 1.6;
+            padding: 8px 18px;
+        }
+        .tabs {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 28px;
+            border-bottom: 2px solid #dce3ed;
+            padding-bottom: 2px;
+            flex-wrap: wrap;
+        }
+        .tab-btn {
+            background: transparent;
+            border: none;
+            padding: 12px 28px;
+            font-size: 16px;
+            font-weight: 600;
+            color: #4a5e79;
+            border-radius: 40px 40px 0 0;
+            cursor: pointer;
+            transition: 0.2s;
+            letter-spacing: 0.3px;
+            position: relative;
+        }
+        .tab-btn:hover {
+            background: #f0f5fc;
+            color: #1a3f62;
+        }
+        .tab-btn.active {
+            background: #e6eefa;
+            color: #0b2a4e;
+            box-shadow: inset 0 -3px 0 #2a7de1;
+        }
+        .tab-content {
+            display: none;
+            animation: fade 0.25s ease;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        @keyframes fade {
+            0% { opacity: 0.3; transform: translateY(6px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        .card-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px 20px;
+            margin: 16px 0 28px;
+        }
+        .stat-card {
+            background: #f9faff;
+            border-radius: 20px;
+            padding: 16px 22px;
+            flex: 1 1 150px;
+            border: 1px solid #e9edf4;
+            box-shadow: 0 2px 6px rgba(0,20,50,0.02);
+        }
+        .stat-card .label {
+            font-size: 13px;
+            font-weight: 500;
+            color: #4a5e79;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+        .stat-card .value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #0b1a33;
+            margin-top: 4px;
+        }
+        .stat-card .sub {
+            font-size: 14px;
+            color: #3a5a7a;
+        }
+        .table-wrap {
+            overflow-x: auto;
+            margin: 20px 0 12px;
+            border-radius: 18px;
+            border: 1px solid #e2e9f2;
+            background: white;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+            min-width: 700px;
+        }
+        th {
+            background: #f0f5fd;
+            color: #1f3b5c;
+            font-weight: 600;
+            padding: 14px 10px;
+            text-align: center;
+            border-bottom: 2px solid #d3dfec;
+            white-space: nowrap;
+        }
+        td {
+            padding: 12px 10px;
+            border-bottom: 1px solid #e7edf5;
+            text-align: center;
+            vertical-align: middle;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        tr:hover td {
+            background: #f8fbfe;
+        }
+        .text-left {
+            text-align: left;
+            padding-left: 16px;
+        }
+        .code-col {
+            font-weight: 500;
+            color: #1f4973;
+        }
+        .title-col {
+            font-weight: 500;
+            color: #0a1e33;
+        }
+        .total-row td {
+            background: #eaf1fa;
+            font-weight: 700;
+            border-top: 2px solid #b8cee4;
+            color: #0b1a33;
+        }
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #113255;
+            margin: 28px 0 12px 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .section-title small {
+            font-size: 14px;
+            font-weight: 400;
+            color: #3b668b;
+        }
+        .highlight-green {
+            background: #e3f5ec;
+            border-radius: 30px;
+            padding: 2px 14px;
+            color: #0a6d4a;
+            font-weight: 500;
+        }
+        .highlight-blue {
+            background: #e3ecf5;
+            border-radius: 30px;
+            padding: 2px 14px;
+            color: #1a4d7a;
+            font-weight: 500;
+        }
+        .highlight-red {
+            background: #f5e3e3;
+            border-radius: 30px;
+            padding: 2px 14px;
+            color: #7a1a1a;
+            font-weight: 500;
+        }
+        .footer-note {
+            margin-top: 28px;
+            background: #f1f7fe;
+            border-radius: 16px;
+            padding: 14px 22px;
+            color: #1d3c5e;
+            font-size: 14px;
+            border-left: 6px solid #2a7de1;
+        }
+        .flex-between {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .month-tag {
+            background: #dce6f2;
+            border-radius: 30px;
+            padding: 4px 16px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 18px;
+            color: #4a5e79;
+        }
+        .refresh-btn {
+            background: #2a7de1;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: 0.2s;
+        }
+        .refresh-btn:hover {
+            background: #1a5fb0;
+        }
+        .config-box {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-bottom: 20px;
+        }
+        .config-box .hint {
+            font-size: 13px;
+            color: #4a6a8a;
+            margin-top: 4px;
+            line-height: 1.6;
+        }
+        .btn-primary {
+            background: #2a7de1;
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            margin-top: 8px;
+        }
+        .btn-primary:hover {
+            background: #1a5fb0;
+        }
+        .btn-success {
+            background: #28a745;
+        }
+        .btn-success:hover {
+            background: #1e7e34;
+        }
+        .profit-card {
+            background: linear-gradient(135deg, #f0f7ff 0%, #e6f0fa 100%);
+            border-radius: 16px;
+            padding: 20px 28px;
+            margin: 16px 0 24px 0;
+            border: 2px solid #d0e0f0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px 40px;
+            align-items: center;
+        }
+        .profit-card .item {
+            display: flex;
+            flex-direction: column;
+        }
+        .profit-card .label {
+            font-size: 13px;
+            font-weight: 500;
+            color: #4a5e79;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+        .profit-card .value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #0b1a33;
+            margin-top: 2px;
+        }
+        .profit-card .value.positive {
+            color: #0a6d4a;
+        }
+        .profit-card .value.negative {
+            color: #d32f2f;
+        }
+        .profit-card .divider {
+            width: 1px;
+            height: 50px;
+            background: #d0e0f0;
+        }
+        @media (max-width: 600px) {
+            .container { padding: 16px; }
+            .stat-card { flex: 1 1 120px; }
+            .stat-card .value { font-size: 22px; }
+            .tab-btn { padding: 10px 16px; font-size: 14px; }
+            .profit-card .divider { display: none; }
+            .profit-card { flex-direction: column; align-items: stretch; gap: 12px; }
+        }
+        .hidden-config {
+            display: none;
+        }
+        .show-config {
+            display: block;
+        }
+        .config-toggle {
+            background: transparent;
+            border: none;
+            color: #6a8aaa;
+            font-size: 12px;
+            cursor: pointer;
+            text-decoration: underline;
+            padding: 4px 8px;
+        }
+        .config-toggle:hover {
+            color: #2a7de1;
+        }
+    </style>
 </head>
 <body>
+<div class="container">
 
-<div class="container" id="app">
-  <h1>📚 Laporan Penjualan Toko Buku</h1>
-
-  <!-- Filter -->
-  <div class="filters">
-    <div>
-      <label for="monthFilter">📅 Bulan: </label>
-      <select id="monthFilter">
-        <option value="all">Semua Bulan</option>
-        <option value="JANUARY">Januari</option>
-        <option value="FEBRUARY">Februari</option>
-        <option value="MARCH">Maret</option>
-        <option value="APRIL">April</option>
-        <option value="MAY">Mei</option>
-        <option value="JUNE">Juni</option>
-        <option value="JULY">Juli</option>
-        <option value="AUGUST">Agustus</option>
-        <option value="SEPTEMBER">September</option>
-        <option value="OCTOBER">Oktober</option>
-        <option value="NOVEMBER">November</option>
-        <option value="DECEMBER">Desember</option>
-      </select>
+    <!-- HEADER -->
+    <div class="flex-between">
+        <div>
+            <h1>📚 RDM Publishers · Laporan Real-time</h1>
+            <div class="subhead">
+                Data otomatis dari Google Sheets · Periode Jan – Mei 2026
+            </div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
+            <div class="month-tag" id="updateTime">📅 Memuat data...</div>
+            <button class="refresh-btn" onclick="loadData()">🔄 Refresh</button>
+            <button class="config-toggle" onclick="toggleConfig()">⚙️ Admin</button>
+        </div>
     </div>
-    <div>
-      <label for="searchInput">🔍 Cari Judul / Kode: </label>
-      <input type="text" id="searchInput" placeholder="contoh: MDP0037 atau Layangan" />
-    </div>
-    <div>
-      <button id="refreshBtn" style="background:#1e2b3c; color:white; border:none; padding:8px 20px; border-radius:8px; cursor:pointer;">⟳ Refresh</button>
-    </div>
-  </div>
 
-  <!-- Summary -->
-  <div class="summary" id="summaryBox">
-    <div class="summary-item"><span>📦 Total Qty Terjual</span><strong id="totalQty">0</strong></div>
-    <div class="summary-item"><span>💰 Total Pendapatan</span><strong id="totalAmount">Rp 0</strong></div>
-    <div class="summary-item"><span>📚 Jumlah Judul</span><strong id="totalTitles">0</strong></div>
-  </div>
+    <!-- Konfigurasi - HIDDEN secara default -->
+    <div class="config-box hidden-config" id="configBox">
+        <label>🔗 URL Google Apps Script</label>
+        <input type="text" id="apiUrlInput" placeholder="https://script.google.com/macros/s/xxx/exec" value="">
+        <div class="hint">
+            💡 Masukkan URL API Google Apps Script yang sudah dideploy.
+        </div>
+        <button class="btn-primary" onclick="saveAndLoad()">💾 Simpan & Muat Data</button>
+        <button class="btn-primary btn-success" onclick="testConnection()" style="margin-left: 8px;">🔍 Test Koneksi</button>
+    </div>
 
-  <!-- Table -->
-  <div style="overflow-x:auto;">
-    <table>
-      <thead id="tableHead">
-        <tr>
-          <th>No</th>
-          <th>Kode</th>
-          <th>Judul</th>
-          <th>Bulan</th>
-          <th>Qty</th>
-          <th>Jumlah (Rp)</th>
-        </tr>
-      </thead>
-      <tbody id="tableBody">
-        <tr><td colspan="6" class="loading">⏳ Memuat data...</td></tr>
-      </tbody>
-    </table>
-  </div>
+    <!-- TAB BUTTONS -->
+    <div class="tabs">
+        <button class="tab-btn active" data-tab="tab1">📊 Monthly Sales</button>
+        <button class="tab-btn" data-tab="tab2">📋 General Report</button>
+    </div>
+    <!-- TAB 1 : MONTHLY SALES -->
+    <div id="tab1" class="tab-content active">
+        <div id="monthlySalesContent">
+            <div class="loading">⏳ Memuat data Monthly Sales...</div>
+        </div>
+    </div>
+
+    <!-- TAB 2 : GENERAL REPORT -->
+    <div id="tab2" class="tab-content">
+        <div id="generalReportContent">
+            <div class="loading">⏳ Memuat data General Report...</div>
+        </div>
+    </div>
+
+    <div style="text-align:right; margin-top: 24px; color:#3f688b; font-size:13px; border-top:1px solid #dce6f2; padding-top: 14px;">
+        ⏺ Data real-time dari Google Sheets · RDM Publishers
+    </div>
 </div>
 
 <script>
-  // ============================================================
-  // KONFIGURASI: GANTI URL INI DENGAN LINK PUBLISHED GOOGLE SHEETS CSV
-  // ============================================================
-  const DATA_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT0x.../pub?output=csv';
-  // Contoh format: https://docs.google.com/spreadsheets/d/1ABC123.../export?format=csv&gid=0
+// ============================================================
+// KONFIGURASI
+// ============================================================
+let API_URL = localStorage.getItem('rdm_api_url') || '';
 
-  // Jika ingin menggunakan file JSON statis, ganti dengan:
-  // const DATA_URL = '/data/sales.json';
+// ============================================================
+// FUNGSI UTAMA
+// ============================================================
 
-  let allRows = [];
+function toggleConfig() {
+    const box = document.getElementById('configBox');
+    box.classList.toggle('hidden-config');
+    box.classList.toggle('show-config');
+}
 
-  // ============================================================
-  // AMBIL DATA DARI GOOGLE SHEETS (CSV)
-  // ============================================================
-  async function fetchData() {
+function saveAndLoad() {
+    const input = document.getElementById('apiUrlInput');
+    API_URL = input.value.trim();
+    if (API_URL) {
+        localStorage.setItem('rdm_api_url', API_URL);
+        loadData();
+    } else {
+        alert('Masukkan URL API terlebih dahulu!');
+    }
+}
+
+function testConnection() {
+    const input = document.getElementById('apiUrlInput');
+    const url = input.value.trim();
+    if (!url) {
+        alert('Masukkan URL API terlebih dahulu!');
+        return;
+    }
+    
+    document.getElementById('updateTime').textContent = '⏳ Testing koneksi...';
+    
+    fetch(url)
+        .then(response => {
+            if (!response.ok) throw new Error('HTTP ' + response.status);
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                document.getElementById('updateTime').textContent = '✅ Koneksi berhasil! Klik Refresh untuk muat data';
+                alert('✅ Koneksi ke Google Sheets berhasil!\n\nData ditemukan:\n- Monthly Sales: ' + (data.monthlySales ? data.monthlySales.length : 0) + ' baris\n- General Report: ' + (data.generalReport ? data.generalReport.length : 0) + ' baris');
+            } else {
+                throw new Error(data.error || 'Unknown error');
+            }
+        })
+        .catch(error => {
+            document.getElementById('updateTime').textContent = '❌ Gagal koneksi';
+            alert('❌ Gagal terhubung ke API.\n\nPastikan URL sudah benar dan Apps Script sudah di-deploy.\n\nError: ' + error.message);
+        });
+}
+
+// Muat URL yang tersimpan saat halaman dimuat
+document.addEventListener('DOMContentLoaded', function() {
+    const savedUrl = localStorage.getItem('rdm_api_url');
+    if (savedUrl) {
+        document.getElementById('apiUrlInput').value = savedUrl;
+        API_URL = savedUrl;
+        loadData();
+    } else {
+        document.getElementById('monthlySalesContent').innerHTML = `
+            <div class="loading">
+                ⚙️ Silakan masukkan URL API melalui menu Admin (⚙️)<br>
+                <small style="color: #6a8aaa;">Klik tombol "Admin" di pojok kanan atas</small>
+            </div>
+        `;
+        document.getElementById('generalReportContent').innerHTML = `
+            <div class="loading">
+                ⚙️ Silakan masukkan URL API melalui menu Admin (⚙️)<br>
+                <small style="color: #6a8aaa;">Klik tombol "Admin" di pojok kanan atas</small>
+            </div>
+        `;
+        document.getElementById('updateTime').textContent = '⏳ Masukkan URL terlebih dahulu';
+    }
+});
+
+async function loadData() {
+    if (!API_URL) {
+        alert('Masukkan URL API terlebih dahulu melalui menu Admin (⚙️)!');
+        return;
+    }
+
+    document.getElementById('updateTime').textContent = '⏳ Memuat data...';
+    
     try {
-      const response = await fetch(DATA_URL);
-      if (!response.ok) throw new Error('Gagal mengambil data');
-      const csvText = await response.text();
-      const parsed = parseCSV(csvText);
-      allRows = parsed;
-      renderTable(allRows);
-      updateSummary(allRows);
-    } catch (err) {
-      document.getElementById('tableBody').innerHTML = `<tr><td colspan="6" class="error">❌ Error: ${err.message}. Pastikan URL Google Sheets benar dan di-publish.</td></tr>`;
-      console.error(err);
-    }
-  }
-
-  // ============================================================
-  // PARSER CSV SEDERHANA (support koma, kutip)
-  // ============================================================
-  function parseCSV(text) {
-    const lines = text.split(/\r?\n/).filter(line => line.trim() !== '');
-    if (lines.length < 3) return [];
-
-    // Cari baris header (No, CODE, TITLE, JANUARY, ...)
-    let headerIndex = -1;
-    for (let i = 0; i < lines.length; i++) {
-      if (lines[i].toLowerCase().includes('no') && lines[i].toLowerCase().includes('code') && lines[i].toLowerCase().includes('title')) {
-        headerIndex = i;
-        break;
-      }
-    }
-    if (headerIndex === -1) return [];
-
-    const headers = lines[headerIndex].split(',').map(h => h.trim());
-    // Cari indeks kolom: No, CODE, TITLE, dan kolom Qty/Amount per bulan
-    const noIdx = headers.indexOf('No');
-    const codeIdx = headers.indexOf('CODE');
-    const titleIdx = headers.indexOf('TITLE');
-
-    // Kumpulkan pasangan (Qty, Amount) untuk setiap bulan
-    // Format: JANUARY, FEBRUARY, ... diikuti Qty dan Amount
-    const monthCols = {};
-    let currentMonth = '';
-    for (let i = 0; i < headers.length; i++) {
-      const h = headers[i].toUpperCase();
-      if (['JANUARY','FEBRUARY','MARCH','APRIL','MAY','JUNE','JULY','AUGUST','SEPTEMBER','OCTOBER','NOVEMBER','DECEMBER'].includes(h)) {
-        currentMonth = h;
-        monthCols[currentMonth] = { qtyIdx: i, amountIdx: i+1 };
-      }
-    }
-
-    // Ambil data baris (mulai setelah header)
-    const rows = [];
-    for (let i = headerIndex + 1; i < lines.length; i++) {
-      const cols = lines[i].split(',').map(c => c.trim());
-      if (cols.length < 3) continue;
-      const no = parseInt(cols[noIdx]) || 0;
-      const code = cols[codeIdx] || '';
-      const title = cols[titleIdx] || '';
-      if (!code && !title) continue;
-
-      // Ambil data per bulan
-      for (const [month, idxs] of Object.entries(monthCols)) {
-        const qty = parseFloat(cols[idxs.qtyIdx]) || 0;
-        const amount = parseFloat(cols[idxs.amountIdx]) || 0;
-        if (qty !== 0 || amount !== 0) {
-          rows.push({
-            no,
-            code,
-            title,
-            month,
-            qty,
-            amount
-          });
+        const response = await fetch(API_URL);
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const data = await response.json();
+        
+        if (!data.success) {
+            throw new Error(data.error || 'Gagal mengambil data');
         }
-      }
+        
+        // Render data
+        if (data.monthlySales && data.monthlySales.length > 0) {
+            renderMonthlySales(data.monthlySales);
+        } else {
+            document.getElementById('monthlySalesContent').innerHTML = '<div class="loading">❌ Data Monthly Sales tidak ditemukan</div>';
+        }
+        
+        if (data.generalReport && data.generalReport.length > 0) {
+            renderGeneralReport(data.generalReport);
+        } else {
+            document.getElementById('generalReportContent').innerHTML = '<div class="loading">❌ Data General Report tidak ditemukan</div>';
+        }
+        
+        // Update timestamp
+        const now = new Date();
+        document.getElementById('updateTime').textContent = `📅 Update ${now.toLocaleString('id-ID')}`;
+        
+    } catch (error) {
+        console.error('Error loading data:', error);
+        document.getElementById('updateTime').textContent = '❌ Gagal memuat data';
+        alert('Gagal memuat data dari Google Sheets.\n\nPastikan URL API sudah benar dan sudah di-deploy.\n\nError: ' + error.message);
     }
-    return rows;
-  }
+}
 
-  // ============================================================
-  // RENDER TABLE
-  // ============================================================
-  function renderTable(data) {
-    const tbody = document.getElementById('tableBody');
+// ============================================================
+// RENDER FUNCTIONS
+// ============================================================
+function renderMonthlySales(data) {
     if (!data || data.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:30px;">📭 Tidak ada data untuk filter ini</td></tr>`;
-      return;
+        document.getElementById('monthlySalesContent').innerHTML = '<div class="loading">❌ Data Monthly Sales tidak ditemukan</div>';
+        return;
     }
 
-    // Urutkan berdasarkan No, lalu bulan
-    const sorted = [...data].sort((a,b) => a.no - b.no || a.month.localeCompare(b.month));
-
-    let html = '';
-    let runningNo = 1;
-    for (const row of sorted) {
-      const monthDisplay = row.month.charAt(0) + row.month.slice(1).toLowerCase();
-      html += `<tr>
-        <td>${runningNo++}</td>
-        <td>${row.code}</td>
-        <td>${row.title}</td>
-        <td>${monthDisplay}</td>
-        <td>${row.qty}</td>
-        <td>${formatRupiah(row.amount)}</td>
-      </tr>`;
+    let startRow = 0;
+    for (let i = 0; i < data.length; i++) {
+        const row = data[i];
+        if (!row || row.length === 0) continue;
+        const firstCol = String(row[0] || '').toUpperCase();
+        const secondCol = String(row[1] || '').toUpperCase();
+        const thirdCol = String(row[2] || '').toUpperCase();
+        
+        if ((firstCol === 'NO' || firstCol === 'NO.' || firstCol === '#') && 
+            (secondCol === 'CODE' || secondCol === 'KODE') && 
+            (thirdCol === 'TITLE' || thirdCol === 'JUDUL')) {
+            startRow = i + 1;
+            break;
+        }
     }
-    tbody.innerHTML = html;
-  }
-
-  // ============================================================
-  // UPDATE SUMMARY
-  // ============================================================
-  function updateSummary(data) {
-    let totalQty = 0, totalAmount = 0;
-    const uniqueTitles = new Set();
-    for (const row of data) {
-      totalQty += row.qty;
-      totalAmount += row.amount;
-      uniqueTitles.add(row.code);
+    
+    if (startRow === 0) {
+        for (let i = 0; i < data.length; i++) {
+            const row = data[i];
+            if (!row || row.length === 0) continue;
+            const firstCol = String(row[0] || '');
+            if (firstCol === '1.0' || firstCol === '1' || firstCol === '1.') {
+                startRow = i;
+                break;
+            }
+        }
     }
-    document.getElementById('totalQty').textContent = totalQty;
-    document.getElementById('totalAmount').textContent = formatRupiah(totalAmount);
-    document.getElementById('totalTitles').textContent = uniqueTitles.size;
-  }
 
-  // ============================================================
-  // FILTER
-  // ============================================================
-  function applyFilters() {
-    const month = document.getElementById('monthFilter').value;
-    const keyword = document.getElementById('searchInput').value.toLowerCase().trim();
-
-    let filtered = allRows;
-    if (month !== 'all') {
-      filtered = filtered.filter(row => row.month === month);
+    if (startRow === 0) {
+        document.getElementById('monthlySalesContent').innerHTML = '<div class="loading">❌ Tidak menemukan data Monthly Sales</div>';
+        return;
     }
-    if (keyword) {
-      filtered = filtered.filter(row => 
-        row.code.toLowerCase().includes(keyword) || 
-        row.title.toLowerCase().includes(keyword)
-      );
+
+    const months = ['JANUARY', 'FEBRUARY', 'MARCH', 'APRIL', 'MAY'];
+    const monthlyTotals = {
+        'JANUARY': { qty: 0, amount: 0 },
+        'FEBRUARY': { qty: 0, amount: 0 },
+        'MARCH': { qty: 0, amount: 0 },
+        'APRIL': { qty: 0, amount: 0 },
+        'MAY': { qty: 0, amount: 0 }
+    };
+
+    const topTitles = [];
+    let totalQty = 0;
+    let totalAmount = 0;
+
+    for (let i = startRow; i < data.length; i++) {
+        const row = data[i];
+        if (!row || row.length < 10) continue;
+        
+        const code = String(row[1] || '');
+        const title = String(row[2] || '');
+        
+        if (!code || code === 'TOTAL' || code === '' || code === 'Total') continue;
+
+        let titleTotalQty = 0;
+        let titleTotalAmount = 0;
+
+        for (let m = 0; m < months.length; m++) {
+            const month = months[m];
+            const qtyIndex = 3 + (m * 2);
+            const amountIndex = 4 + (m * 2);
+            
+            const qty = parseFloat(row[qtyIndex]) || 0;
+            const amount = parseFloat(row[amountIndex]) || 0;
+            
+            if (qty > 0 || amount > 0) {
+                monthlyTotals[month].qty += qty;
+                monthlyTotals[month].amount += amount;
+                titleTotalQty += qty;
+                titleTotalAmount += amount;
+                totalQty += qty;
+                totalAmount += amount;
+            }
+        }
+
+        if (titleTotalQty > 0) {
+            topTitles.push({ code, title, qty: titleTotalQty, amount: titleTotalAmount });
+        }
     }
-    renderTable(filtered);
-    updateSummary(filtered);
-  }
 
-  // ============================================================
-  // FORMAT RUPIAH
-  // ============================================================
-  function formatRupiah(amount) {
-    return 'Rp ' + Math.round(amount).toLocaleString('id-ID');
-  }
+    topTitles.sort((a, b) => b.qty - a.qty);
+    const top10 = topTitles.slice(0, 10);
 
-  // ============================================================
-  // EVENT LISTENER
-  // ============================================================
-  document.getElementById('monthFilter').addEventListener('change', applyFilters);
-  document.getElementById('searchInput').addEventListener('input', applyFilters);
-  document.getElementById('refreshBtn').addEventListener('click', () => {
-    document.getElementById('tableBody').innerHTML = `<tr><td colspan="6" class="loading">⏳ Memuat ulang...</td></tr>`;
-    fetchData();
-  });
+    const formatRupiah = (num) => {
+        return new Intl.NumberFormat('id-ID', {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0
+        }).format(Math.round(num));
+    };
 
-  // ============================================================
-  // START
-  // ============================================================
-  fetchData();
+    let bestMonth = '';
+    let bestAmount = 0;
+    for (const [month, data] of Object.entries(monthlyTotals)) {
+        if (data.amount > bestAmount) {
+            bestAmount = data.amount;
+            bestMonth = month;
+        }
+    }
+
+    let html = `
+        <div class="card-grid">
+            <div class="stat-card"><span class="label">💰 Total Income (Jan-Mei)</span><div class="value">Rp ${formatRupiah(totalAmount / 1000)} Juta</div><span class="sub">dari 5 bulan</span></div>
+            <div class="stat-card"><span class="label">📦 Total Qty Terjual</span><div class="value">${totalQty}</div><span class="sub">exemplar</span></div>
+            <div class="stat-card"><span class="label">📈 Bulan Terbaik</span><div class="value">${bestMonth.charAt(0) + bestMonth.slice(1).toLowerCase()}</div><span class="sub">Rp ${formatRupiah(bestAmount / 1000)} Juta</span></div>
+            <div class="stat-card"><span class="label">🏆 Top Title (Qty)</span><div class="value">${top10[0]?.title || '-'}</div><span class="sub">${top10[0]?.qty || 0} eksemplar</span></div>
+        </div>
+
+        <div class="section-title">⭐ Top 10 Judul Terbaik <small>(berdasarkan total Qty Jan–Mei)</small></div>
+        <div class="table-wrap">
+            <table>
+                <thead><tr><th>#</th><th>Kode</th><th style="text-align:left;">Judul</th><th>Total Qty</th><th>Total Amount (Rp)</th></tr></thead>
+                <tbody>
+                    ${top10.map((item, idx) => `
+                        <tr>
+                            <td>${idx + 1}</td>
+                            <td class="code-col">${item.code}</td>
+                            <td class="text-left title-col">${item.title}</td>
+                            <td>${item.qty}</td>
+                            <td>${formatRupiah(item.amount)}</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="section-title" style="margin-top:16px;">📆 Ringkasan Penjualan per Bulan</div>
+        <div class="table-wrap">
+            <table>
+                <thead><tr><th>Bulan</th><th>Total Qty</th><th>Total Amount (Rp)</th><th>Rata-rata per transaksi</th></tr></thead>
+                <tbody>
+                    ${Object.entries(monthlyTotals).map(([month, data]) => {
+                        const avg = data.qty > 0 ? Math.round(data.amount / data.qty) : 0;
+                        return `
+                            <tr>
+                                <td><strong>${month.charAt(0) + month.slice(1).toLowerCase()}</strong></td>
+                                <td>${data.qty}</td>
+                                <td>${formatRupiah(data.amount)}</td>
+                                <td>${avg > 0 ? formatRupiah(avg) : '-'}</td>
+                            </tr>
+                        `;
+                    }).join('')}
+                    <tr class="total-row">
+                        <td><strong>TOTAL</strong></td>
+                        <td>${totalQty}</td>
+                        <td>${formatRupiah(totalAmount)}</td>
+                        <td>—</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="footer-note">
+            ✅ <strong>Top performer:</strong> ${top10[0]?.title} (${top10[0]?.qty} eks) · ${top10[1]?.title} (${top10[1]?.qty} eks) · ${top10[2]?.title} (${top10[2]?.qty} eks)
+        </div>
+    `;
+
+    document.getElementById('monthlySalesContent').innerHTML = html;
+}
+
+function renderGeneralReport(data) {
+    if (!data || data.length === 0) {
+        document.getElementById('generalReportContent').innerHTML = '<div class="loading">❌ Data General Report tidak ditemukan</div>';
+        return;
+    }
+
+    let startRow = 0;
+    for (let i = 0; i < data.length; i++) {
+        const row = data[i];
+        if (!row || row.length === 0) continue;
+        const firstCol = String(row[0] || '').toUpperCase();
+        const secondCol = String(row[1] || '').toUpperCase();
+        const thirdCol = String(row[2] || '').toUpperCase();
+        
+        if ((firstCol === 'NO' || firstCol === 'NO.' || firstCol === '#') && 
+            (secondCol === 'CODE' || secondCol === 'KODE') && 
+            (thirdCol === 'TITLE' || thirdCol === 'JUDUL')) {
+            const fourthCol = String(row[3] || '').toUpperCase();
+            if (fourthCol.includes('CETAK') || fourthCol.includes('PRINTED')) {
+                startRow = i + 1;
+                break;
+            }
+        }
+    }
+    
+    if (startRow === 0) {
+        for (let i = 0; i < data.length; i++) {
+            const row = data[i];
+            if (!row || row.length === 0) continue;
+            const firstCol = String(row[0] || '');
+            if (firstCol === '1.0' || firstCol === '1' || firstCol === '1.') {
+                startRow = i;
+                break;
+            }
+        }
+    }
+
+    if (startRow === 0) {
+        document.getElementById('generalReportContent').innerHTML = '<div class="loading">❌ Tidak menemukan data General Report</div>';
+        return;
+    }
+
+    const items = [];
+    let totalIncome = 0;
+    let totalSold = 0;
+    let totalBalance = 0;
+    let totalProdCost = 0;
+
+    for (let i = startRow; i < data.length; i++) {
+        const row = data[i];
+        if (!row || row.length < 12) continue;
+        
+        const code = String(row[1] || '');
+        const title = String(row[2] || '');
+        
+        if (!code || code === 'TOTAL' || code === '' || code === 'Total') continue;
+        if (title.includes('TOTAL')) continue;
+
+        const printed = parseFloat(row[3]) || 0;
+        const sold = parseFloat(row[4]) || 0;
+        const percentage = row[5] || '0%';
+        const stockRdm = parseFloat(row[6]) || 0;
+        const stockToko = parseFloat(row[7]) || 0;
+        const balanceStock = parseFloat(row[8]) || 0;
+        const prodCost = parseFloat(row[9]) || 0;
+        const income = parseFloat(row[10]) || 0;
+        const balance = parseFloat(row[11]) || 0;
+
+        if (sold > 0 || income > 0) {
+            items.push({
+                code, title, printed, sold, percentage, stockRdm, 
+                stockToko, balanceStock, prodCost, income, balance
+            });
+            totalIncome += income;
+            totalSold += sold;
+            totalBalance += balance;
+            totalProdCost += prodCost;
+        }
+    }
+
+    // Hitung Net Profit = Total Income - Total Biaya Produksi
+    const netProfit = totalIncome - totalProdCost;
+    const isProfit = netProfit >= 0;
+
+    const top10 = [...items].sort((a, b) => b.sold - a.sold).slice(0, 10);
+
+    const formatRupiah = (num) => {
+        return new Intl.NumberFormat('id-ID', {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0
+        }).format(Math.round(num));
+    };
+
+    const formatLarge = (num) => {
+        if (num >= 1000000000) {
+            return (num / 1000000000).toFixed(2) + ' Miliar';
+        } else if (num >= 1000000) {
+            return (num / 1000000).toFixed(2) + ' Juta';
+        }
+        return formatRupiah(num);
+    };
+
+    let html = `
+        <div class="card-grid">
+            <div class="stat-card"><span class="label">💰 Total Income</span><div class="value">Rp ${formatLarge(totalIncome)}</div><span class="sub">seluruh judul</span></div>
+            <div class="stat-card"><span class="label">📦 Total Terjual</span><div class="value">${formatRupiah(totalSold)}</div><span class="sub">exemplar</span></div>
+            <div class="stat-card"><span class="label">📈 Best Seller (Qty)</span><div class="value">${top10[0]?.title || '-'}</div><span class="sub">${top10[0]?.sold || 0} terjual</span></div>
+            <div class="stat-card"><span class="label">🏆 Income Tertinggi</span><div class="value">Rp ${formatLarge(top10[0]?.income || 0)}</div><span class="sub">${top10[0]?.title || '-'}</span></div>
+        </div>
+
+        <!-- PROFIT SUMMARY - Total Income - Biaya Produksi -->
+        <div class="profit-card">
+            <div class="item">
+                <span class="label">💰 Total Income</span>
+                <span class="value">Rp ${formatLarge(totalIncome)}</span>
+            </div>
+            <div class="divider"></div>
+            <div class="item">
+                <span class="label">📦 Total Biaya Produksi</span>
+                <span class="value">Rp ${formatLarge(totalProdCost)}</span>
+            </div>
+            <div class="divider"></div>
+            <div class="item">
+                <span class="label">📊 Net Profit (Income - Biaya Produksi)</span>
+                <span class="value ${isProfit ? 'positive' : 'negative'}">
+                    ${isProfit ? '✅' : '⚠️'} Rp ${formatLarge(Math.abs(netProfit))} ${isProfit ? '(Profit)' : '(Loss)'}
+                </span>
+            </div>
+        </div>
+
+        <div class="section-title">🏅 Top 10 Judul Terlaris <small>(berdasarkan RDM Qty Sold)</small></div>
+        <div class="table-wrap">
+            <table>
+                <thead><tr><th>#</th><th>Kode</th><th style="text-align:left;">Judul</th><th>Terjual</th><th>Income (Rp)</th><th>Balance (Rp)</th></tr></thead>
+                <tbody>
+                    ${top10.map((item, idx) => `
+                        <tr>
+                            <td>${idx + 1}</td>
+                            <td class="code-col">${item.code}</td>
+                            <td class="text-left title-col">${item.title}</td>
+                            <td>${formatRupiah(item.sold)}</td>
+                            <td>${formatRupiah(item.income)}</td>
+                            <td style="color: ${item.balance < 0 ? '#d32f2f' : '#0a6d4a'}">${formatRupiah(item.balance)}</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="section-title" style="margin-top:16px;">📋 General Report <small>– seluruh judul (${items.length} item)</small></div>
+        <div class="table-wrap">
+            <table>
+                <thead><tr><th>#</th><th>Kode</th><th style="text-align:left;">Judul</th><th>Cetak</th><th>Terjual</th><th>Stok RDM</th><th>Stok Toko</th><th>Balance Stock</th><th>Biaya Prod.</th><th>Income</th><th>Balance (Rp)</th></tr></thead>
+                <tbody>
+                    ${items.map((item, idx) => `
+                        <tr>
+                            <td>${idx + 1}</td>
+                            <td class="code-col">${item.code}</td>
+                            <td class="text-left title-col">${item.title}</td>
+                            <td>${formatRupiah(item.printed)}</td>
+                            <td>${formatRupiah(item.sold)}</td>
+                            <td>${item.stockRdm}</td>
+                            <td>${item.stockToko}</td>
+                            <td>${item.balanceStock}</td>
+                            <td>${formatRupiah(item.prodCost)}</td>
+                            <td>${formatRupiah(item.income)}</td>
+                            <td style="color: ${item.balance < 0 ? '#d32f2f' : '#0a6d4a'}">${formatRupiah(item.balance)}</td>
+                        </tr>
+                    `).join('')}
+                    <tr class="total-row">
+                        <td></td><td></td>
+                        <td class="text-left">📌 TOTAL</td>
+                        <td>—</td>
+                        <td>${formatRupiah(totalSold)}</td>
+                        <td>—</td>
+                        <td>—</td>
+                        <td>—</td>
+                        <td>${formatRupiah(totalProdCost)}</td>
+                        <td>${formatRupiah(totalIncome)}</td>
+                        <td style="color: ${totalBalance < 0 ? '#d32f2f' : '#0a6d4a'}">${formatRupiah(totalBalance)}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="footer-note">
+            <strong>📌 Ringkasan General:</strong> Total Income Rp ${formatLarge(totalIncome)} · Total Biaya Produksi Rp ${formatLarge(totalProdCost)} · 
+            <span class="${isProfit ? 'highlight-green' : 'highlight-red'}">Net Profit: Rp ${formatLarge(Math.abs(netProfit))} ${isProfit ? '(✅ Profit)' : '(⚠️ Loss)'}</span> · 
+            <span class="highlight-blue">Best seller: ${top10[0]?.title}</span> (${top10[0]?.sold} eks)
+        </div>
+    `;
+
+    document.getElementById('generalReportContent').innerHTML = html;
+}
+
+// ============================================================
+// TAB LOGIC
+// ============================================================
+const tabs = document.querySelectorAll('.tab-btn');
+const contents = {
+    tab1: document.getElementById('tab1'),
+    tab2: document.getElementById('tab2')
+};
+
+tabs.forEach(btn => {
+    btn.addEventListener('click', function(e) {
+        tabs.forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        Object.values(contents).forEach(c => c.classList.remove('active'));
+        const target = this.dataset.tab;
+        if (contents[target]) contents[target].classList.add('active');
+    });
+});
 </script>
-
 </body>
 </html>
