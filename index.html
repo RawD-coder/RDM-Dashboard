@@ -248,39 +248,6 @@
         .refresh-btn:hover {
             background: #1a5fb0;
         }
-        .config-box {
-            background: #f8f9fa;
-            border: 1px solid #dee2e6;
-            border-radius: 12px;
-            padding: 16px 20px;
-            margin-bottom: 20px;
-        }
-        .config-box .hint {
-            font-size: 13px;
-            color: #4a6a8a;
-            margin-top: 4px;
-            line-height: 1.6;
-        }
-        .btn-primary {
-            background: #2a7de1;
-            color: white;
-            border: none;
-            padding: 10px 24px;
-            border-radius: 30px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 14px;
-            margin-top: 8px;
-        }
-        .btn-primary:hover {
-            background: #1a5fb0;
-        }
-        .btn-success {
-            background: #28a745;
-        }
-        .btn-success:hover {
-            background: #1e7e34;
-        }
         .profit-card {
             background: linear-gradient(135deg, #f0f7ff 0%, #e6f0fa 100%);
             border-radius: 16px;
@@ -328,24 +295,6 @@
             .profit-card .divider { display: none; }
             .profit-card { flex-direction: column; align-items: stretch; gap: 12px; }
         }
-        .hidden-config {
-            display: none;
-        }
-        .show-config {
-            display: block;
-        }
-        .config-toggle {
-            background: transparent;
-            border: none;
-            color: #6a8aaa;
-            font-size: 12px;
-            cursor: pointer;
-            text-decoration: underline;
-            padding: 4px 8px;
-        }
-        .config-toggle:hover {
-            color: #2a7de1;
-        }
     </style>
 </head>
 <body>
@@ -362,19 +311,7 @@
         <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
             <div class="month-tag" id="updateTime">📅 Memuat data...</div>
             <button class="refresh-btn" onclick="loadData()">🔄 Refresh</button>
-            <button class="config-toggle" onclick="toggleConfig()">⚙️ Admin</button>
         </div>
-    </div>
-
-    <!-- Konfigurasi - HIDDEN secara default -->
-    <div class="config-box hidden-config" id="configBox">
-        <label>🔗 URL Google Apps Script</label>
-        <input type="text" id="apiUrlInput" placeholder="https://script.google.com/macros/s/xxx/exec" value="">
-        <div class="hint">
-            💡 Masukkan URL API Google Apps Script yang sudah dideploy.
-        </div>
-        <button class="btn-primary" onclick="saveAndLoad()">💾 Simpan & Muat Data</button>
-        <button class="btn-primary btn-success" onclick="testConnection()" style="margin-left: 8px;">🔍 Test Koneksi</button>
     </div>
 
     <!-- TAB BUTTONS -->
@@ -403,88 +340,30 @@
 
 <script>
 // ============================================================
+// KONFIGURASI - TANAMKAN URL API DI SINI
+// ============================================================
+// GANTI URL di bawah ini dengan URL Google Apps Script Anda
+const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycbzZSDMLs5LOlGCpJ-1sz_QqInevYcQH20-UTCROVK7wdYycx_Fn37PNSrodKG6YYpmswg/exec';
+
+// ============================================================
 // KONFIGURASI
 // ============================================================
-let API_URL = localStorage.getItem('rdm_api_url') || '';
+let API_URL = localStorage.getItem('rdm_api_url') || DEFAULT_API_URL;
 
 // ============================================================
 // FUNGSI UTAMA
 // ============================================================
 
-function toggleConfig() {
-    const box = document.getElementById('configBox');
-    box.classList.toggle('hidden-config');
-    box.classList.toggle('show-config');
-}
-
-function saveAndLoad() {
-    const input = document.getElementById('apiUrlInput');
-    API_URL = input.value.trim();
-    if (API_URL) {
-        localStorage.setItem('rdm_api_url', API_URL);
-        loadData();
-    } else {
-        alert('Masukkan URL API terlebih dahulu!');
-    }
-}
-
-function testConnection() {
-    const input = document.getElementById('apiUrlInput');
-    const url = input.value.trim();
-    if (!url) {
-        alert('Masukkan URL API terlebih dahulu!');
-        return;
-    }
-    
-    document.getElementById('updateTime').textContent = '⏳ Testing koneksi...';
-    
-    fetch(url)
-        .then(response => {
-            if (!response.ok) throw new Error('HTTP ' + response.status);
-            return response.json();
-        })
-        .then(data => {
-            if (data.success) {
-                document.getElementById('updateTime').textContent = '✅ Koneksi berhasil! Klik Refresh untuk muat data';
-                alert('✅ Koneksi ke Google Sheets berhasil!\n\nData ditemukan:\n- Monthly Sales: ' + (data.monthlySales ? data.monthlySales.length : 0) + ' baris\n- General Report: ' + (data.generalReport ? data.generalReport.length : 0) + ' baris');
-            } else {
-                throw new Error(data.error || 'Unknown error');
-            }
-        })
-        .catch(error => {
-            document.getElementById('updateTime').textContent = '❌ Gagal koneksi';
-            alert('❌ Gagal terhubung ke API.\n\nPastikan URL sudah benar dan Apps Script sudah di-deploy.\n\nError: ' + error.message);
-        });
-}
-
-// Muat URL yang tersimpan saat halaman dimuat
+// Muat data saat halaman dimuat
 document.addEventListener('DOMContentLoaded', function() {
-    const savedUrl = localStorage.getItem('rdm_api_url');
-    if (savedUrl) {
-        document.getElementById('apiUrlInput').value = savedUrl;
-        API_URL = savedUrl;
-        loadData();
-    } else {
-        document.getElementById('monthlySalesContent').innerHTML = `
-            <div class="loading">
-                ⚙️ Silakan masukkan URL API melalui menu Admin (⚙️)<br>
-                <small style="color: #6a8aaa;">Klik tombol "Admin" di pojok kanan atas</small>
-            </div>
-        `;
-        document.getElementById('generalReportContent').innerHTML = `
-            <div class="loading">
-                ⚙️ Silakan masukkan URL API melalui menu Admin (⚙️)<br>
-                <small style="color: #6a8aaa;">Klik tombol "Admin" di pojok kanan atas</small>
-            </div>
-        `;
-        document.getElementById('updateTime').textContent = '⏳ Masukkan URL terlebih dahulu';
-    }
+    // Selalu gunakan API_URL yang sudah diset (default atau dari localStorage)
+    loadData();
 });
 
 async function loadData() {
     if (!API_URL) {
-        alert('Masukkan URL API terlebih dahulu melalui menu Admin (⚙️)!');
-        return;
+        // Fallback jika API_URL kosong
+        API_URL = DEFAULT_API_URL;
     }
 
     document.getElementById('updateTime').textContent = '⏳ Memuat data...';
@@ -518,7 +397,33 @@ async function loadData() {
     } catch (error) {
         console.error('Error loading data:', error);
         document.getElementById('updateTime').textContent = '❌ Gagal memuat data';
-        alert('Gagal memuat data dari Google Sheets.\n\nPastikan URL API sudah benar dan sudah di-deploy.\n\nError: ' + error.message);
+        
+        // Tampilkan pesan error yang lebih informatif
+        let errorMessage = 'Gagal memuat data dari Google Sheets.\n\n';
+        if (error.message.includes('Failed to fetch')) {
+            errorMessage += 'Tidak dapat terhubung ke server. Pastikan URL Google Apps Script sudah benar dan sudah di-deploy.\n\n';
+        } else {
+            errorMessage += 'Error: ' + error.message + '\n\n';
+        }
+        errorMessage += 'URL yang digunakan: ' + API_URL;
+        
+        alert(errorMessage);
+        
+        // Tampilkan error di konten
+        document.getElementById('monthlySalesContent').innerHTML = `
+            <div class="loading" style="color: #d32f2f;">
+                ❌ Gagal memuat data<br>
+                <small style="color: #6a8aaa;">Error: ${error.message}</small>
+                <br><br>
+                <small style="color: #6a8aaa;">URL: ${API_URL}</small>
+            </div>
+        `;
+        document.getElementById('generalReportContent').innerHTML = `
+            <div class="loading" style="color: #d32f2f;">
+                ❌ Gagal memuat data<br>
+                <small style="color: #6a8aaa;">Error: ${error.message}</small>
+            </div>
+        `;
     }
 }
 
